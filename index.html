@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Calculators</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      padding: 20px;
+      color: white;
+      background-color: lightblue;
+    }
+    .section {
+      margin-top: 30px;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .input-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    input, select {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+      width: 200px;
+    }
+    button {
+      margin: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .footnote {
+      font-size: 14px;
+      color: #777;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Health Calculators</h1>
+
+  <!-- Age Calculator Section -->
+  <div class="section">
+    <h2>Age Calculator</h2>
+    <input type="number" id="yearInput" placeholder="Year of Birth">
+    <button onclick="calculateAge()">Calculate Age</button>
+    <div id="ageResult" class="result"></div>
+  </div>
+
+  <!-- BMI Calculator Section -->
+  <div class="section">
+    <h2>BMI Calculator</h2>
+    <div class="input-group">
+      <input type="number" id="weightInput" placeholder="Weight (kg)" step="0.1">
+      <input type="text" id="heightInput" placeholder="Height (m)">
+    </div>
+    <button onclick="calculateBMI()">Calculate BMI</button>
+    <div id="bmiResult" class="result"></div>
+    <div class="footnote">Based on Malaysian CPG Management of Obesity (Second Edition) 2023</div>
+  </div>
+
+  <!-- Framingham Risk Score Calculator -->
+  <div class="section">
+    <h2>Framingham Risk Score Calculator</h2>
+    <div class="input-group">
+      <select id="genderInput">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+      <input type="number" id="ageInput" placeholder="Age">
+      <input type="number" id="cholesterolInput" placeholder="Total Cholesterol (mg/dL)">
+      <input type="number" id="hdlInput" placeholder="HDL Cholesterol (mg/dL)">
+      <input type="number" id="sbpInput" placeholder="Systolic BP">
+    </div>
+    <div class="input-group">
+      <select id="bpMedicationInput">
+        <option value="0">No Antihypertensive</option>
+        <option value="1">On Antihypertensive</option>
+      </select>
+      <select id="smokingInput">
+        <option value="0">Non-Smoker</option>
+        <option value="1">Smoker</option>
+      </select>
+      <select id="diabetesInput">
+        <option value="0">Non-Diabetic</option>
+        <option value="1">Diabetic</option>
+      </select>
+    </div>
+    <button onclick="calculateFramingham()">Calculate Risk</button>
+    <div id="framinghamResult" class="result"></div>
+  </div>
+
+  <script>
+    // Age Calculator
+    function calculateAge() {
+      const yearOfBirth = document.getElementById('yearInput').value;
+      const currentYear = new Date().getFullYear();
+      const age = currentYear - yearOfBirth;
+      const result = document.getElementById('ageResult');
+      result.textContent = age > 0 ? `Age: ${age}` : 'Please enter a valid year.';
+    }
+
+    // BMI Calculator
+    function calculateBMI() {
+      const weight = parseFloat(document.getElementById('weightInput').value);
+      const height = parseFloat(document.getElementById('heightInput').value);
+      const result = document.getElementById('bmiResult');
+      if (weight && height && height <= 2.5) {
+        const bmi = (weight / (height * height)).toFixed(2);
+        result.textContent = `BMI: ${bmi}`;
+      } else {
+        result.textContent = "Invalid weight or height.";
+      }
+    }
+
+    // Framingham Risk Score Calculator
+    function calculateFramingham() {
+      const age = parseInt(document.getElementById('ageInput').value);
+      const gender = document.getElementById('genderInput').value;
+      const cholesterol = parseInt(document.getElementById('cholesterolInput').value);
+      const hdl = parseInt(document.getElementById('hdlInput').value);
+      const sbp = parseInt(document.getElementById('sbpInput').value);
+      const onMedication = parseInt(document.getElementById('bpMedicationInput').value);
+      const smoker = parseInt(document.getElementById('smokingInput').value);
+      const diabetic = parseInt(document.getElementById('diabetesInput').value);
+
+      if (age && cholesterol && hdl && sbp) {
+        let score = 0;
+
+        // Example: simplistic scoring
+        score += age * 0.1;
+        score += gender === 'male' ? 5 : 0;
+        score += cholesterol * 0.02;
+        score -= hdl * 0.02;
+        score += smoker ? 5 : 0;
+        score += diabetic ? 5 : 0;
+        score += onMedication ? sbp * 0.03 : sbp * 0.02;
+
+        const risk = Math.min(Math.round(score), 100);
+        document.getElementById('framinghamResult').textContent = `Estimated 10-Year Risk: ${risk}%`;
+      } else {
+        document.getElementById('framinghamResult').textContent = "Please fill out all fields.";
+      }
+    }
+  </script>
+</body>
+</html>
