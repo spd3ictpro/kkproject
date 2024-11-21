@@ -96,7 +96,7 @@
   </style>
 </head>
 <body>
-  <h1>Primary Care Calculators</h1>
+  <h1>Health Calculators</h1>
 
   <!-- Age Calculator Section -->
   <div class="section">
@@ -225,6 +225,67 @@
         document.getElementById('framinghamResult').textContent = "Please fill out all fields.";
       }
     }
+
+    // Add Event Listeners to Trigger Calculation on Enter Key
+    document.getElementById('yearInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        calculateAge();
+      }
+    });
+
+    document.getElementById('weightInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        calculateBMI();
+      }
+    });
+
+    document.getElementById('heightInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        calculateBMI();
+      }
+    });
+
+    document.getElementById('ageInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        calculateFramingham();
+      }
+    });
+
+    document.getElementById('cholesterolInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        calculateFramingham();
+      }
+    });
+
+    document.getElementById('hdlInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        calculateFramingham();
+      }
+    });
+
+    document.getElementById('sbpInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        calculateFramingham();
+      }
+    });
+
+    document.getElementById('bpMedicationInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        calculateFramingham();
+      }
+    });
+
+    document.getElementById('smokingInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        calculateFramingham();
+      }
+    });
+
+    document.getElementById('diabetesInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        calculateFramingham();
+      }
+    });
   </script>
 </body>
 </html>
