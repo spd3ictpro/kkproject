@@ -14,7 +14,7 @@
 
     h1 {
       margin: 0;
-      padding: 20px;
+      padding: 60px;
       color: white;
       background-color: darkblue;
       font-size: 2rem;
@@ -52,7 +52,7 @@
     .input-group {
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-between;
+      justify-content: center;
       gap: 15px;
     }
 
@@ -96,9 +96,10 @@
   </style>
 </head>
 <body>
-  <h1>Health Calculators</h1>
+  <h1>Primary Care Calculators</h1>
 
   <!-- Age Calculator Section -->
+
   <div class="section">
     <h2>Age Calculator</h2>
     <div class="input-group">
@@ -119,6 +120,7 @@
     <div id="bmiResult" class="result"></div>
     <div class="footnote">Based on Malaysian CPG Management of Obesity (Second Edition) 2023</div>
   </div>
+  
 
   <!-- Framingham Risk Score Calculator -->
   <div class="section">
@@ -165,19 +167,45 @@
       result.textContent = age > 0 ? `Age: ${age}` : 'Please enter a valid year.';
     }
 
-    // BMI Calculator
+  
+    // BMI Calculator with Classification and Color Coding
     function calculateBMI() {
       const weight = parseFloat(document.getElementById('weightInput').value);
       const height = parseFloat(document.getElementById('heightInput').value);
       const result = document.getElementById('bmiResult');
+
       if (weight && height && height <= 2.5) {
         const bmi = (weight / (height * height)).toFixed(2);
-        result.textContent = `BMI: ${bmi}`;
+        let classification = '';
+        let color = '';
+
+        if (bmi < 18.5) {
+          classification = 'Underweight';
+          color = 'lightblue';
+        } else if (bmi >= 18.5 && bmi <= 22.9) {
+          classification = 'Normal';
+          color = 'lightgreen';
+        } else if (bmi >= 23.0 && bmi <= 27.4) {
+          classification = 'Overweight (Pre-obese)';
+          color = 'yellow';
+        } else if (bmi >= 27.5 && bmi <= 32.4) {
+          classification = 'Obese Class I';
+          color = 'orange';
+        } else if (bmi >= 32.5 && bmi <= 37.4) {
+          classification = 'Obese Class II';
+          color = 'red';
+        } else {
+          classification = 'Obese Class III';
+          color = 'violet';
+        }
+
+        result.textContent = `BMI: ${bmi} (${classification})`;
+        result.style.backgroundColor = color;
       } else {
         result.textContent = "Invalid weight or height.";
+        result.style.backgroundColor = '#f1f1f1';
       }
     }
-
     // Framingham Risk Score Calculator with Risk Category
     function calculateFramingham() {
       const age = parseInt(document.getElementById('ageInput').value);
