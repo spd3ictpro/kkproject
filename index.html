@@ -4,7 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Primary Care Calculators</title>
+  
   <style>
+
+    
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
@@ -19,7 +22,18 @@
       background-color: darkblue;
       font-size: 2rem;
     }
+    .container {
+      display: flex;
+      gap: 20px; /* Space between columns */
+      flex-wrap: wrap; /* Allows wrapping on smaller screens */
+      justify-content: center; /* Center columns */
+    }
 
+    .column {
+      flex: 1; /* Make both columns equal width */
+      max-width: 48%; /* Prevent columns from stretching too wide */
+      box-sizing: border-box; /* Include padding/border in width */
+    }
     .section {
       margin-top: 30px;
       padding: 20px;
@@ -37,6 +51,60 @@
       color: #333;
       margin-bottom: 15px;
     }
+/* Calculator Styling */
+.calculator {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.display {
+  width: 100%;
+  height: 50px;
+  margin-bottom: 15px;
+  font-size: 1.5rem;
+  text-align: right;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 5px 10px;
+  box-sizing: border-box;
+  background-color: #f1f1f1;
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+button {
+  height: 50px;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #007BFF;
+  color: white;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+button.operation {
+  background-color: #ff8c00;
+}
+
+button.operation:hover {
+  background-color: #e67700;
+}
+
+button.clear {
+  background-color: #ff4d4d;
+}
+
+button.clear:hover {
+  background-color: #d73838;
+}
 
     /* Consistent input and select styling */
     .section input,
@@ -98,64 +166,100 @@
 <body>
   <h1>Primary Care Calculators</h1>
 
-  <!-- Age Calculator Section -->
+  <!-- Two-Column Layout -->
+  <div class="container">
+    <!-- Column 1 -->
+    <div class="column">
+      <!-- Age Calculator Section -->
+      <div class="section">
+        <h2>Age Calculator</h2>
+        <div class="input-group">
+          <input type="number" id="yearInput" placeholder="Year of Birth">
+        </div>
+        <button onclick="calculateAge()">Calculate Age</button>
+        <div id="ageResult" class="result"></div>
+      </div>
 
-  <div class="section">
-    <h2>Age Calculator</h2>
-    <div class="input-group">
-      <input type="number" id="yearInput" placeholder="Year of Birth">
+      <!-- BMI Calculator Section -->
+      <div class="section">
+        <h2>BMI Calculator</h2>
+        <div class="input-group">
+          <input type="number" id="weightInput" placeholder="Weight (kg)" step="0.1">
+          <input type="text" id="heightInput" placeholder="Height (m)">
+        </div>
+        <button onclick="calculateBMI()">Calculate BMI</button>
+        <div id="bmiResult" class="result"></div>
+        <div class="footnote">Based on Malaysian CPG Management of Obesity (Second Edition) 2023</div>
+      </div>
     </div>
-    <button onclick="calculateAge()">Calculate Age</button>
-    <div id="ageResult" class="result"></div>
-  </div>
-
-  <!-- BMI Calculator Section -->
-  <div class="section">
-    <h2>BMI Calculator</h2>
-    <div class="input-group">
-      <input type="number" id="weightInput" placeholder="Weight (kg)" step="0.1">
-      <input type="text" id="heightInput" placeholder="Height (m)">
+    <div class="section">
+      <h2>Framingham Risk Score Calculator</h2>
+      <div class="input-group">
+        <select id="genderInput">
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+        </select>
+        <input type="number" id="ageInput" placeholder="Age">
+      </div>
+      <div class="input-group">
+        <input type="number" id="cholesterolInput" placeholder="Total Cholesterol (mg/dL)">
+        <input type="number" id="hdlInput" placeholder="HDL Cholesterol (mg/dL)">
+      </div>
+      <div class="input-group">
+        <input type="number" id="sbpInput" placeholder="Systolic BP">
+        <select id="bpMedicationInput">
+          <option value="0">No Antihypertensive</option>
+          <option value="1">On Antihypertensive</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <select id="smokingInput">
+          <option value="0">Non-Smoker</option>
+          <option value="1">Smoker</option>
+        </select>
+        <select id="diabetesInput">
+          <option value="0">Non-Diabetic</option>
+          <option value="1">Diabetic</option>
+        </select>
+      </div>
+      <button onclick="calculateFramingham()">Calculate Risk</button>
+      <div id="framinghamResult" class="result"></div>
     </div>
-    <button onclick="calculateBMI()">Calculate BMI</button>
-    <div id="bmiResult" class="result"></div>
-    <div class="footnote">Based on Malaysian CPG Management of Obesity (Second Edition) 2023</div>
-  </div>
+ <!-- Column 2 -->
+ <div class="column">
+  <div class="section">
+    <h2>Calculator</h2>
+    <div class="calculator">
+      <input type="text" id="calcDisplay" class="display" readonly>
+      <div class="buttons">
+        <button class="clear" data-action="clear">C</button>
+        <button data-action="percent">%</button>
+        <button data-action="divide" class="operation">÷</button>
+        <button data-action="multiply" class="operation">×</button>
   
-
-  <!-- Framingham Risk Score Calculator -->
-  <div class="section">
-    <h2>Framingham Risk Score Calculator</h2>
-    <div class="input-group">
-      <select id="genderInput">
-        <option value="male">Male</option>
-        <option value="female">Female</option>
-      </select>
-      <input type="number" id="ageInput" placeholder="Age">
+        <button data-number="7">7</button>
+        <button data-number="8">8</button>
+        <button data-number="9">9</button>
+        <button data-action="subtract" class="operation">−</button>
+  
+        <button data-number="4">4</button>
+        <button data-number="5">5</button>
+        <button data-number="6">6</button>
+        <button data-action="add" class="operation">+</button>
+  
+        <button data-number="1">1</button>
+        <button data-number="2">2</button>
+        <button data-number="3">3</button>
+        <button data-action="equals" class="operation">=</button>
+  
+        <button data-number="0" style="grid-column: span 2;">0</button>
+        <button data-action="decimal">.</button>
+      </div>
     </div>
-    <div class="input-group">
-      <input type="number" id="cholesterolInput" placeholder="Total Cholesterol (mg/dL)">
-      <input type="number" id="hdlInput" placeholder="HDL Cholesterol (mg/dL)">
-    </div>
-    <div class="input-group">
-      <input type="number" id="sbpInput" placeholder="Systolic BP">
-      <select id="bpMedicationInput">
-        <option value="0">No Antihypertensive</option>
-        <option value="1">On Antihypertensive</option>
-      </select>
-    </div>
-    <div class="input-group">
-      <select id="smokingInput">
-        <option value="0">Non-Smoker</option>
-        <option value="1">Smoker</option>
-      </select>
-      <select id="diabetesInput">
-        <option value="0">Non-Diabetic</option>
-        <option value="1">Diabetic</option>
-      </select>
-    </div>
-    <button onclick="calculateFramingham()">Calculate Risk</button>
-    <div id="framinghamResult" class="result"></div>
   </div>
+</div>
+</div>
+
 
   <script>
     // Age Calculator
@@ -314,6 +418,141 @@
         calculateFramingham();
       }
     });
+
+    const calcDisplay = document.getElementById("calcDisplay");
+let calcCurrentNumber = "0";
+let calcPreviousNumber = "";
+let calcOperator = null;
+
+function calcUpdateDisplay() {
+  calcDisplay.value = calcCurrentNumber;
+}
+
+function calcHandleNumber(num) {
+  if (calcCurrentNumber === "0") {
+    calcCurrentNumber = num;
+  } else {
+    calcCurrentNumber += num;
+  }
+  calcUpdateDisplay();
+}
+
+function calcHandleOperator(op) {
+  if (calcCurrentNumber !== "") {
+    if (calcPreviousNumber !== "") {
+      calcCalculate();
+    }
+    calcPreviousNumber = calcCurrentNumber;
+    calcCurrentNumber = "0";
+    calcOperator = op;
+  }
+}
+
+function calcCalculate() {
+  const prev = parseFloat(calcPreviousNumber);
+  const curr = parseFloat(calcCurrentNumber);
+
+  if (isNaN(prev) || isNaN(curr)) return;
+
+  let result = 0;
+  switch (calcOperator) {
+    case "add":
+      result = prev + curr;
+      break;
+    case "subtract":
+      result = prev - curr;
+      break;
+    case "multiply":
+      result = prev * curr;
+      break;
+    case "divide":
+      result = curr !== 0 ? prev / curr : "Error";
+      break;
+  }
+
+  calcCurrentNumber = result.toString();
+  calcOperator = null;
+  calcPreviousNumber = "";
+}
+
+function calcHandleAction(action) {
+  switch (action) {
+    case "clear":
+      calcCurrentNumber = "0";
+      calcPreviousNumber = "";
+      calcOperator = null;
+      break;
+    case "equals":
+      calcCalculate();
+      break;
+    case "percent":
+      calcCurrentNumber = (parseFloat(calcCurrentNumber) / 100).toString();
+      break;
+    case "decimal":
+      if (!calcCurrentNumber.includes(".")) {
+        calcCurrentNumber += ".";
+      }
+      break;
+  }
+  calcUpdateDisplay();
+}
+
+document.querySelector(".buttons").addEventListener("click", (event) => {
+  const target = event.target;
+
+  if (target.dataset.number) {
+    calcHandleNumber(target.dataset.number);
+  } else if (target.dataset.action) {
+    calcHandleAction(target.dataset.action);
+    if (
+      ["add", "subtract", "multiply", "divide"].includes(target.dataset.action)
+    ) {
+      calcHandleOperator(target.dataset.action);
+    }
+  }
+});
+
+// Keyboard Event Listener
+document.addEventListener("keydown", (event) => {
+  // Check if the focus is inside an input or textarea field
+  const activeElement = document.activeElement;
+  const isInputActive =
+    activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA";
+
+  // If focus is on a non-calculator input field, ignore key events
+  if (isInputActive && !activeElement.classList.contains("calc-input")) {
+    return;
+  }
+
+  const key = event.key;
+
+  if (!isNaN(key)) {
+    // If the key is a number
+    calcHandleNumber(key);
+  } else if (key === ".") {
+    calcHandleAction("decimal");
+  } else if (key === "Enter" || key === "=") {
+    calcHandleAction("equals");
+  } else if (key === "Backspace") {
+    // Simulate clear
+    calcHandleAction("clear");
+  } else if (key === "+") {
+    calcHandleOperator("add");
+  } else if (key === "-") {
+    calcHandleOperator("subtract");
+  } else if (key === "*") {
+    calcHandleOperator("multiply");
+  } else if (key === "/") {
+    calcHandleOperator("divide");
+  } else if (key === "%") {
+    calcHandleAction("percent");
+  }
+});
+
+
+// Initialize display
+calcUpdateDisplay();
+
   </script>
 </body>
 </html>
