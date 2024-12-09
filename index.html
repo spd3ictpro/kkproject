@@ -74,6 +74,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
+  outline: none;
 }
 
 button {
@@ -86,6 +87,14 @@ button {
   color: white;
 }
 
+
+button:focus-visible {
+  outline: 2px solid blue; /* Optional for accessibility */
+}
+
+button:focus {
+  outline: none; /* Prevents focus outline for mouse or programmatic interaction */
+}
 button:hover {
   background-color: #0056b3;
 }
@@ -192,6 +201,7 @@ button.clear:hover {
         <div class="footnote">Based on Malaysian CPG Management of Obesity (Second Edition) 2023</div>
       </div>
     </div>
+    <!-- Framingham Risk Score Calculator -->
     <div class="section">
       <h2>Framingham Risk Score Calculator</h2>
       <div class="input-group">
@@ -202,11 +212,11 @@ button.clear:hover {
         <input type="number" id="ageInput" placeholder="Age">
       </div>
       <div class="input-group">
-        <input type="number" id="cholesterolInput" placeholder="Total Cholesterol (mg/dL)">
-        <input type="number" id="hdlInput" placeholder="HDL Cholesterol (mg/dL)">
+        <input type="number" id="cholesterolInput" placeholder="Total Cholesterol (mmol/L)">
+        <input type="number" id="hdlInput" placeholder="HDL Cholesterol (mmol/L)">
       </div>
       <div class="input-group">
-        <input type="number" id="sbpInput" placeholder="Systolic BP">
+        <input type="number" id="sbpInput" placeholder="Systolic BP (mmHg)">
         <select id="bpMedicationInput">
           <option value="0">No Antihypertensive</option>
           <option value="1">On Antihypertensive</option>
@@ -224,8 +234,12 @@ button.clear:hover {
       </div>
       <button onclick="calculateFramingham()">Calculate Risk</button>
       <div id="framinghamResult" class="result"></div>
-    </div>
+      <div class="footnote">
+        <p>This is not CV Risk score.</p>
+        <p style="text-indent: 20px;">Diabetic patients are considered high risk and should be considered for statin.</p>
+      </div>    </div>
  <!-- Column 2 -->
+  <!-- Calculator Section -->
  <div class="column">
   <div class="section">
     <h2>Calculator</h2>
@@ -310,53 +324,190 @@ button.clear:hover {
         result.style.backgroundColor = '#f1f1f1';
       }
     }
-    // Framingham Risk Score Calculator with Risk Category
     function calculateFramingham() {
-      const age = parseInt(document.getElementById('ageInput').value);
-      const gender = document.getElementById('genderInput').value;
-      const cholesterol = parseInt(document.getElementById('cholesterolInput').value);
-      const hdl = parseInt(document.getElementById('hdlInput').value);
-      const sbp = parseInt(document.getElementById('sbpInput').value);
-      const onMedication = parseInt(document.getElementById('bpMedicationInput').value);
-      const smoker = parseInt(document.getElementById('smokingInput').value);
-      const diabetic = parseInt(document.getElementById('diabetesInput').value);
+    // Collect user inputs
+    const age = parseInt(document.getElementById("ageInput").value);
+    const gender = document.getElementById("genderInput").value;
+    const hdl = parseFloat(document.getElementById("hdlInput").value);
+    const cholesterol = parseFloat(document.getElementById("cholesterolInput").value);
+    const sbp = parseInt(document.getElementById("sbpInput").value);
 
-      if (age && cholesterol && hdl && sbp) {
-        let score = 0;
+    // Handle treated, smoker, diabetes as boolean
+    const treated = parseInt(document.getElementById("bpMedicationInput").value) === 1;
+    const smoker = parseInt(document.getElementById("smokingInput").value) === 1;
+    const diabetes = parseInt(document.getElementById("diabetesInput").value) === 1;
 
-        // Example: simplistic scoring
-        score += age * 0.1;
-        score += gender === 'male' ? 5 : 0;
-        score += cholesterol * 0.02;
-        score -= hdl * 0.02;
-        score += smoker ? 5 : 0;
-        score += diabetic ? 5 : 0;
-        score += onMedication ? sbp * 0.03 : sbp * 0.02;
+    // Validate required inputs
+    if (isNaN(age) || isNaN(hdl) || isNaN(cholesterol) || isNaN(sbp) || !gender) {
+        displayResult("Please fill out all required fields.", "error");
+        return;
+    }
 
-        const risk = Math.min(Math.round(score), 100);
+    let points = 0;
 
-        // Categorizing the risk
-        let riskCategory = '';
-        let riskColor = '';
+    // Scoring logic
+    if (gender === "male") {
+        // Age scoring
+        if (age < 30) points += 0;
+        else if (age <= 34) points += 0;
+        else if (age <= 39) points += 2;
+        else if (age <= 44) points += 5;
+        else if (age <= 49) points += 6;
+        else if (age <= 54) points += 8;
+        else if (age <= 59) points += 10;
+        else if (age <= 64) points += 11;
+        else if (age <= 69) points += 12;
+        else if (age <= 74) points += 14;
+        else points += 15;
 
-        if (risk < 10) {
-          riskCategory = 'Low Risk';
-          riskColor = 'lightgreen';
-        } else if (risk >= 10 && risk <= 20) {
-          riskCategory = 'Intermediate Risk';
-          riskColor = 'lightyellow';
+        // HDL scoring
+        if (hdl >= 1.6) points -= 2;
+        else if (hdl >= 1.3) points -= 1;
+        else if (hdl >= 1.2) points += 0;
+        else if (hdl >= 0.9) points += 1;
+        else points += 2;
+
+        // Cholesterol scoring
+        if (cholesterol < 4.2) points += 0;
+        else if (cholesterol < 5.2) points += 1;
+        else if (cholesterol < 6.3) points += 2;
+        else if (cholesterol < 7.4) points += 3;
+        else points += 4;
+
+        // SBP scoring (treated or untreated)
+        if (treated) {
+            if (sbp < 120) points += 0;
+            else if (sbp < 130) points += 2;
+            else if (sbp < 140) points += 3;
+            else if (sbp < 160) points += 4;
+            else points += 5;
         } else {
-          riskCategory = 'High Risk';
-          riskColor = 'red';
+            if (sbp < 120) points -= 2;
+            else if (sbp < 130) points += 0;
+            else if (sbp < 140) points += 1;
+            else if (sbp < 160) points += 2;
+            else points += 3;
         }
 
-        const resultElement = document.getElementById('framinghamResult');
-        resultElement.textContent = `Estimated 10-Year Risk: ${risk}% (${riskCategory})`;
-        resultElement.style.backgroundColor = riskColor;
-      } else {
-        document.getElementById('framinghamResult').textContent = "Please fill out all fields.";
-      }
+        // Smoker and diabetes scoring
+        if (smoker) points += 2; // Add points for smoking
+        if (diabetes) points += 2; // Add points for diabetes
+
+        // Male risk table
+        const maleRiskTable = {
+            "-3": 1, "-2": 1.1, "-1": 1.4, "0": 1.6, "1": 1.9, "2": 2.3, "3": 2.8,
+            "4": 3.3, "5": 3.9, "6": 4.7, "7": 5.6, "8": 6.7, "9": 7.9, "10": 9.4,
+            "11": 11.2, "12": 13.2, "13": 15.6, "14": 18.4, "15": 21.6, "16": 25.3,
+            "17": 29.4, "18": ">30"
+        };
+        const risk = maleRiskTable[points] || 30;
+        displayRisk(risk);
+    } else {
+        // Female-specific scoring
+        if (age < 30) points += 0;
+        else if (age <= 34) points += 0;
+        else if (age <= 39) points += 2;
+        else if (age <= 44) points += 4;
+        else if (age <= 49) points += 5;
+        else if (age <= 54) points += 7;
+        else if (age <= 59) points += 8;
+        else if (age <= 64) points += 9;
+        else if (age <= 69) points += 10;
+        else if (age <= 74) points += 11;
+        else points += 12;
+
+        // HDL scoring
+        if (hdl >= 1.6) points -= 2;
+        else if (hdl >= 1.3) points -= 1;
+        else if (hdl >= 1.2) points += 0;
+        else if (hdl >= 0.9) points += 1;
+        else points += 2;
+
+        // Cholesterol scoring
+        if (cholesterol < 4.2) points += 0;
+        else if (cholesterol < 5.2) points += 1;
+        else if (cholesterol < 6.3) points += 3;
+        else if (cholesterol < 7.4) points += 4;
+        else points += 5;
+
+        // SBP scoring (treated or untreated)
+        if (treated) {
+            if (sbp < 120) points -= 1;
+            else if (sbp < 130) points += 2;
+            else if (sbp < 140) points += 3;
+            else if (sbp < 150) points += 5;
+            else if (sbp < 160) points += 6;
+            else points += 7;
+        } else {
+            if (sbp < 120) points -= 3;
+            else if (sbp < 130) points += 0;
+            else if (sbp < 140) points += 1;
+            else if (sbp < 150) points += 2;
+            else if (sbp < 160) points += 4;
+            else points += 5;
+        }
+
+        // Smoker and diabetes scoring
+        if (smoker) points += 2; // Add points for smoking
+        if (diabetes) points += 2; // Add points for diabetes
+
+        // Female risk table
+        const femaleRiskTable = {
+            "-2": "<1", "-1": 1.0, "0": 1.2, "1": 1.5, "2": 1.7, "3": 2.0,
+            "4": 2.4, "5": 2.8, "6": 3.3, "7": 3.9, "8": 4.5, "9": 5.3,
+            "10": 6.3, "11": 7.3, "12": 8.6, "13": 10.0, "14": 11.7, "15": 13.7,
+            "16": 15.9, "17": 18.5, "18": 21.5, "19": 24.8, "20": 28.5, "21": ">30"
+        };
+        const risk = femaleRiskTable[points] || ">30";
+        displayRisk(risk);
     }
+}
+
+// Display risk with appropriate styling
+function displayRisk(risk) {
+    const resultElement = document.getElementById("framinghamResult");
+    let riskCategory = "";
+    let riskColor = "";
+
+    if (risk < 10) {
+        riskCategory = "Low Risk";
+        riskColor = "lightgreen";
+    } else if (risk <= 20) {
+        riskCategory = "Moderate Risk";
+        riskColor = "lightyellow";
+    } else {
+        riskCategory = "High Risk";
+        riskColor = "red";
+    }
+
+    resultElement.textContent = `Estimated 10-Year Risk: ${risk}% (${riskCategory})`;
+    resultElement.style.backgroundColor = riskColor;    
+}
+
+// Display risk with appropriate styling
+function displayRisk(risk) {
+    const resultElement = document.getElementById("framinghamResult");
+    let riskCategory = "";
+    let riskColor = "";
+
+    if (risk < 10) {
+        riskCategory = "Low Risk";
+        riskColor = "lightgreen";
+    } else if (risk <= 20) {
+        riskCategory = "Moderate Risk";
+        riskColor = "lightyellow";
+    } else {
+        riskCategory = "High Risk";
+        riskColor = "red";
+    }
+
+    resultElement.textContent = `Estimated 10-Year Risk: ${risk}% (${riskCategory})`;
+    resultElement.style.backgroundColor = riskColor;
+}
+
+
+
+    
 
     // Add Event Listeners to Trigger Calculation on Enter Key
     document.getElementById('yearInput').addEventListener('keydown', function(event) {
@@ -512,14 +663,21 @@ document.querySelector(".buttons").addEventListener("click", (event) => {
   }
 });
 
+// Prevent mouse click from focusing buttons
+// Prevent mouse click from focusing buttons
+document.querySelectorAll("button").forEach(button => {
+  button.addEventListener("mousedown", (e) => {
+    e.preventDefault(); // Prevent button from receiving focus
+  });
+});
+
+
 // Keyboard Event Listener
 document.addEventListener("keydown", (event) => {
-  // Check if the focus is inside an input or textarea field
   const activeElement = document.activeElement;
   const isInputActive =
     activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA";
 
-  // If focus is on a non-calculator input field, ignore key events
   if (isInputActive && !activeElement.classList.contains("calc-input")) {
     return;
   }
@@ -527,14 +685,12 @@ document.addEventListener("keydown", (event) => {
   const key = event.key;
 
   if (!isNaN(key)) {
-    // If the key is a number
     calcHandleNumber(key);
   } else if (key === ".") {
     calcHandleAction("decimal");
   } else if (key === "Enter" || key === "=") {
     calcHandleAction("equals");
   } else if (key === "Backspace") {
-    // Simulate clear
     calcHandleAction("clear");
   } else if (key === "+") {
     calcHandleOperator("add");
@@ -548,6 +704,7 @@ document.addEventListener("keydown", (event) => {
     calcHandleAction("percent");
   }
 });
+
 
 
 // Initialize display
