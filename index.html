@@ -88,6 +88,7 @@ button {
 }
 
 
+
 button:focus-visible {
   outline: 2px solid blue; /* Optional for accessibility */
 }
@@ -163,6 +164,15 @@ button.clear:hover {
       margin-top: 20px;
     }
 
+    .clear-btn {
+  background-color: #dc3545; /* Red color for Clear button */
+  color: #fff;
+}
+
+.clear-btn:hover {
+  background-color: #c82333; /* Darker red on hover */
+}
+
     /* Responsive design for small screens */
     @media (max-width: 600px) {
       .section input,
@@ -186,6 +196,7 @@ button.clear:hover {
           <input type="number" id="yearInput" placeholder="Year of Birth">
         </div>
         <button onclick="calculateAge()">Calculate Age</button>
+        <button class="button clear-btn" id="clearAge">Clear</button>
         <div id="ageResult" class="result"></div>
       </div>
 
@@ -197,6 +208,7 @@ button.clear:hover {
           <input type="text" id="heightInput" placeholder="Height (m)">
         </div>
         <button onclick="calculateBMI()">Calculate BMI</button>
+        <button class="button clear-btn" id="clearBmi">Clear</button>
         <div id="bmiResult" class="result"></div>
         <div class="footnote">Based on Malaysian CPG Management of Obesity (Second Edition) 2023</div>
       </div>
@@ -233,14 +245,41 @@ button.clear:hover {
         </select>
       </div>
       <button onclick="calculateFramingham()">Calculate Risk</button>
+      <button class="button clear-btn" id="clearFramingham">Clear</button>
       <div id="framinghamResult" class="result"></div>
       <div class="footnote">
         <p>This is not CV Risk score.</p>
-        <p style="text-indent: 20px;">Diabetic patients are considered high risk and should be considered for statin.</p>
-      </div>    </div>
+        <p style="text-indent: 10px;">Diabetic patients are considered high risk and should be considered for statin.</p>
+      </div>    
+    
+    </div>
+<!-- eGFR Calculator -->
+<div class="container">
+<div class="section">
+    <h2>eGFR Calculator</h2>
+    <div class="input-group">
+      <input type="number" id="creatinine" class="input" step="0.1" placeholder="Serum Creatinine (µmol/L)">
+    </div>
+    <div class="input-group">
+      <input type="number" id="age" class="input" placeholder="Age (years)">
+    </div>
+    <div class="input-group">
+      <select id="sex" class="select">
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </div>
+    <div class="field">
+      <button class="button" id="calculate">Calculate eGFR</button>
+      <button class="button clear-btn" id="cleareGFR">Clear</button>
+    </div>
+    <div class="result" id="result"></div>
+    
+    </div>
+    </div>
  <!-- Column 2 -->
   <!-- Calculator Section -->
- <div class="column">
+ <div class="container">
   <div class="section">
     <h2>Calculator</h2>
     <div class="calculator">
@@ -710,6 +749,108 @@ document.addEventListener("keydown", (event) => {
 // Initialize display
 calcUpdateDisplay();
 
+function calculateEGFR(creatinine, age, sex) {
+      const creatinineMgDl = creatinine / 88.4; // Convert µmol/L to mg/dL
+      const kappa = sex === 'male' ? 0.9 : 0.7;
+      const alpha = sex === 'male' ? -0.411 : -0.329;
+      const raceMultiplier = 1.0; // Default to non-Black
+
+      const minScr = Math.min(creatinineMgDl / kappa, 1);
+      const maxScr = Math.max(creatinineMgDl / kappa, 1);
+
+      return (
+        141 *
+        Math.pow(minScr, alpha) *
+        Math.pow(maxScr, -1.209) *
+        Math.pow(0.993, age) *
+        raceMultiplier
+      );
+    }
+
+    // Function to determine CKD stage and color
+    function getCKDStage(eGFR) {
+      if (eGFR >= 90) return { stage: "Stage 1", color: "#d4edda", textColor: "#155724" };
+      if (eGFR >= 60) return { stage: "Stage 2", color: "#cce5ff", textColor: "#004085" };
+      if (eGFR >= 45) return { stage: "Stage 3a", color: "#fff3cd", textColor: "#856404" };
+      if (eGFR >= 30) return { stage: "Stage 3b", color: "#ffeeba", textColor: "#856404" };
+      if (eGFR >= 15) return { stage: "Stage 4", color: "#f8d7da", textColor: "#721c24" };
+      return { stage: "Stage 5 ", color: "#f5c6cb", textColor: "#721c24" };
+    }
+
+    // Add Event Listeners
+    document.getElementById('calculate').addEventListener('click', () => {
+      const creatinine = parseFloat(document.getElementById('creatinine').value);
+      const age = parseInt(document.getElementById('age').value, 10);
+      const sex = document.getElementById('sex').value;
+
+      if (!creatinine || !age) {
+        document.getElementById('result').textContent = "Please fill out all fields.";
+        document.getElementById('result').style.backgroundColor = "";
+        document.getElementById('result').style.color = "";
+        return;
+      }
+
+      const eGFR = Math.round(calculateEGFR(creatinine, age, sex));
+      const { stage, color, textColor } = getCKDStage(eGFR);
+
+      const resultDiv = document.getElementById('result');
+      resultDiv.textContent = `eGFR: ${eGFR}  (${stage.toUpperCase()})`;
+      resultDiv.style.backgroundColor = color;
+      resultDiv.style.color = textColor;
+    });
+
+    // Keyboard Event Listener
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        document.getElementById('calculate').click();
+      }
+    });
+    document.getElementById('cleareGFR').addEventListener('click', () => {
+  document.getElementById('creatinine').value = '';
+  document.getElementById('age').value = '';
+  document.getElementById('sex').value = 'male'; // Reset to default value
+  document.getElementById('result').textContent = '';
+  document.getElementById('result').style.backgroundColor = '';
+  document.getElementById('result').style.color = '';
+
+
+});
+
+document.getElementById('clearFramingham').addEventListener('click', () => {
+  document.getElementById('ageInput').value = '';
+  document.getElementById('cholesterolInput').value = '';
+  document.getElementById('genderInput').value = 'male'; // Reset to default value
+  document.getElementById('hdlInput').value = '';
+  document.getElementById('sbpInput').value = '';
+  document.getElementById('smokingInput').value = '0'; // Reset to default value
+  document.getElementById('diabetesInput').value = '0'; 
+  
+  document.getElementById('framinghamResult').textContent = '';
+  document.getElementById('framinghamResult').style.backgroundColor = '';
+  document.getElementById('framinghamResult').style.color = '';
+
+
+});
+
+document.getElementById('clearAge').addEventListener('click', () => {
+  document.getElementById('yearInput').value = '';
+  document.getElementById('ageResult').textContent = '';
+  document.getElementById('ageResult').style.backgroundColor = '';
+  document.getElementById('ageResult').style.color = '';
+
+
+});
+
+document.getElementById('clearBmi').addEventListener('click', () => {
+  document.getElementById('weightInput').value = '';
+  document.getElementById('heightInput').value = '';
+  document.getElementById('bmiResult').textContent = '';
+  document.getElementById('bmiResult').style.backgroundColor = '';
+  document.getElementById('bmiResult').style.color = '';
+
+
+});
+ 
   </script>
 </body>
 </html>
